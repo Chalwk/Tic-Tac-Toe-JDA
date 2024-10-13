@@ -17,11 +17,15 @@ public class authentication {
      * to the Discord server.
      *
      * @return The authentication token as a String.
-     * @throws IOException if an error occurs while reading the file.
+     * @throws IOException if an error occurs while reading the file or if the file is empty.
      */
     public static String getToken() throws IOException {
         try (BufferedReader text = new BufferedReader(new FileReader("auth.token"))) {
-            return text.readLine();
+            String token = text.readLine();
+            if (token == null || token.isEmpty()) {
+                throw new IOException("Authentication token file is empty or invalid.");
+            }
+            return token;
         }
     }
 }

@@ -73,20 +73,31 @@ public class makeMove implements CommandInterface {
             return;
         }
 
-        BoardState state;
-        int progress = board.checkWinner();
-        if (progress == 1) {
-            state = BoardState.PLAYER1_WINS;
-        } else if (progress == 2) {
-            state = BoardState.PLAYER2_WINS;
-        } else if (progress == 0) {
-            state = BoardState.DRAW;
-        } else {
-            state = BoardState.IN_PROGRESS;
+        // Check the game state after the move
+        BoardState state = determineGameState(board);
+        if (state != BoardState.IN_PROGRESS) {
+            event.reply("The game has already ended!").setEphemeral(true).queue();
+            return;
         }
 
         game.setWhosTurn();
         game.updateGameEmbed(event, state);
         COOLDOWN_MANAGER.setCooldown(getName(), event.getUser());
+    }
+
+    /**
+     * Determines the current game state based on the board.
+     *
+     * @param board the current game board
+     * @return the current state of the game
+     */
+    private BoardState determineGameState(Board board) {
+        int progress = board.checkWinner();
+        return switch (progress) {
+            case 1 -> BoardState.PLAYER1_WINS;
+            case 2 -> BoardState.PLAYER2_WINS;
+            case 0 -> BoardState.DRAW;
+            default -> BoardState.IN_PROGRESS;
+        };
     }
 }
